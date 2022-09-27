@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   aws-cli: circleci/aws-cli@2.0.3
-  slack: circleci/slack@4.2.1
+  # slack: circleci/slack@4.2.1
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -48,10 +48,10 @@ jobs:
           root: ~/
           paths:
             - project/frontend/node_modules
-      - slack/notify:
-          channel: udacity
-          event: fail
-          template: basic_fail_1  
+      # - slack/notify:
+      #     channel: udacity
+      #     event: fail
+      #     template: basic_fail_1  
   build-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -67,10 +67,10 @@ jobs:
           root: ~/
           paths:
             - project/backend/node_modules
-      - slack/notify:
-          channel: udacity
-          event: fail
-          template: basic_fail_1              
+      # - slack/notify:
+      #     channel: udacity
+      #     event: fail
+      #     template: basic_fail_1              
   test-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -82,10 +82,10 @@ jobs:
             cd frontend
             npm install
             npm run test
-      - slack/notify:
-          channel: udacity
-          event: fail
-          template: basic_fail_1              
+      # - slack/notify:
+      #     channel: udacity
+      #     event: fail
+      #     template: basic_fail_1              
   test-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -99,10 +99,10 @@ jobs:
             cd backend
             npm install
             npm run test
-      - slack/notify:
-          channel: udacity
-          event: fail
-          template: basic_fail_1              
+      # - slack/notify:
+      #     channel: udacity
+      #     event: fail
+      #     template: basic_fail_1              
   scan-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -361,15 +361,15 @@ workflows:
   default:
     jobs:
       - build-frontend:
-          context: slack-secrets      
+          # context: slack-secrets      
       - build-backend :
-          context: slack-secrets          
+          # context: slack-secrets          
       - test-frontend:
           requires: [build-frontend]
-          context: slack-secrets          
+          # context: slack-secrets          
       - test-backend:
           requires: [build-backend]
-          context: slack-secrets          
+          # context: slack-secrets          
       - scan-frontend:
           requires: [build-frontend]
       - scan-backend:
