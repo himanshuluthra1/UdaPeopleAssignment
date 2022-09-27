@@ -117,38 +117,55 @@ jobs:
             npm i
             npm audit fix --audit-level=critical --force
 
-  # deploy-infrastructure:
-  #   docker:
-  #     # Docker image here that supports AWS CLI
-  #   steps:
-  #     # Checkout code from git
-  #     - run:
-  #         name: Ensure back-end infrastructure exists
-  #         command: |
-  #           aws cloudformation deploy \
-  #             --template-file .circleci/files/backend.yml \
-  #             #--tags project=your-tag \
-  #             # --stack-name "your back-end stack name with workflow id" \
-  #             # --parameter-overrides ID="your workflow id"  
-  #             exit 1
-  #     - run:
-  #         name: Ensure front-end infrastructure exist
-  #         command: |
-  #           aws cloudformation deploy \
-  #             --template-file .circleci/files/frontend.yml \
-  #             #--tags project=your-tag \
-  #             # --stack-name "your front-end stack name with workflow id" \
-  #             # --parameter-overrides ID="your workflow id"  
-  #             exit 1
-  #     - run:
-  #         name: Add back-end ip to ansible inventory
-  #         command: |
-  #           # Your code here
-  #           exit 1
-  #     - persist_to_workspace:
-  #         root: ~/
-  #         paths:
-  #           - project/.circleci/ansible/inventory.txt
+  deploy-infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout 
+      - run: yum -y install tar gzip
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file ./.circleci/files/backend.yml \
+              --tags project=udapeople \
+              --stack-name "backend-${CIRCLE_WORKFLOW_ID}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}" 
+            URLS=$(aws ec2 describe-instances --region us-east-1 --query "Reservations[*].Instances[*].PublicIpAddress" \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID}" --output text)
+            echo "URLS=$URLS"
+            echo "${CIRCLE_WORKFLOW_ID}"
+            curl -H "Content-Type: text/plain" -H "token: baca3071-c660-4431-b697-6f9bc4624dd7" --request PUT \
+              --data "$URLS" https://api.memstash.io/values/url_${CIRCLE_WORKFLOW_ID}
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file ./.circleci/files/frontend.yml \
+              --tags project=udapeople \
+              --stack-name "frontend-${CIRCLE_WORKFLOW_ID}"  \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"  
+            ARN=$(aws s3 ls | grep udapeople)
+            echo "ARN=$ARN"
+            curl -H "Content-Type: text/plain" -H "token: 533f4c58-9f5c-48ef-8233-3775d61da939" --request PUT \
+              --data "$ARN" https://api.memstash.io/values/arn_${CIRCLE_WORKFLOW_ID}
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            echo "[web]" >> ./.circleci/ansible/inventory.txt
+            backend_ip=$(curl -H  "token: baca3071-c660-4431-b697-6f9bc4624dd7" --request GET \
+            https://api.memstash.io/values/url_${CIRCLE_WORKFLOW_ID})
+            echo "$backend_ip" >> ./.circleci/ansible/inventory.txt
+            cat ./.circleci/ansible/inventory.txt
+      - run:
+          name: Resolve dependencies
+          command: |
+            yum -y install tar gzip jq npm 
+      - persist_to_workspace:
+          root: /root
+          paths:
+            - project
+      - destroy-environment
   #     # Here's where you will add some code to rollback on failure      
 
   # configure-infrastructure:
