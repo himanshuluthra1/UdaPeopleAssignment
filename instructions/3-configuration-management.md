@@ -148,7 +148,7 @@ All this automated deployment stuff is great, but what if there’s something we
       - Use `curl` to hit the back-end API's status endpoint (e.g. https://1.2.3.4:3000/api/status)
       - No errors mean a successful test
     - Test the front-end
-      - Form the front-end url using the workflow id and your AWS region like this: `URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-east-1.amazonaws.com"` 
+      - Form the front-end url using the workflow id and your AWS region like this: `URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-west-2.amazonaws.com"` 
       - Check the front-end to make sure it includes a word or two that proves it is working properly.
       - No errors mean a successful test
       ```bash
