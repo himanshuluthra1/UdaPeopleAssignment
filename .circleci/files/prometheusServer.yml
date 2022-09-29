@@ -8,11 +8,11 @@ Parameters:
   VPC:
     Description: Deploy the instance in this VPC
     Type: String
-    Default: vpc-0492b2b84bd1a3194
+    Default: vpc-0e67a36ea0dc7d05d
   Subnet:
     Description: This subnet must already exist
     Type: String
-    Default: subnet-06241d056512881e6
+    Default: subnet-0184a6b3ef69a3e9a
   AZ:
     Description: Choose an AZ that corresponds to the Subnet in the !Subnet section
     Type: String
